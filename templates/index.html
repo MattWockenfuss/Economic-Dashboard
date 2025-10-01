@@ -1,0 +1,65 @@
+<html>
+    <head>
+        <title>Economic Dashboard</title>
+        <link rel="stylesheet" href="static/styles.css">
+        <script type="module" src="static/main.js"></script>
+    </head>
+    <body>
+        This is the main body of our Economic Dashboard!
+        <ol>
+            <li>Yurt</li>
+            <li>FannieMae</li>
+            <li>FreddyMac</li>
+            <li>Bureau of Labor Statics</li>
+            <li>Federal Reserve Economic Database</li>
+            <li>Yurt2</li>
+            <li>
+                <h2>Ages</h2>
+                <ul>
+                    <li>Traditions</li>
+                    <li>Renassiance</li>
+                    <li>Discovery</li>
+                    <li>Reformation</li>
+                    <li>Absolutism</li>
+                    <li>Revolutions</li>
+                </ul>
+            </li>
+        </ol>
+        
+        <form action="/submit" method="post">
+            <input name="username">
+            <input name="age" type="number">
+            <input type="text">        <!-- single-line text -->
+            <input type="password">    <!-- hidden characters -->
+            <input type="email">       <!-- validates email format -->
+            <br>
+            <input type="number">      <!-- numeric input (arrows/spinners) -->
+            <input type="tel">         <!-- telephone number -->
+            <input type="url">         <!-- validates URL format -->
+            <input type="search">      <!-- styled for search boxes -->
+            <input type="date">        <!-- calendar picker -->
+            <br>
+            <input type="time">        <!-- time picker -->
+            <input type="datetime-local"> <!-- date + time (no timezone) -->
+            <input type="month">       <!-- month/year picker -->
+            <input type="week">        <!-- week/year picker -->
+            <input type="checkbox">    <!-- on/off toggle -->
+            <br>
+            <input type="radio">       <!-- single-choice among group -->
+            <input type="range">       <!-- slider for numbers -->
+            <input type="color">       <!-- color picker -->
+            <input type="file">        <!-- file upload -->
+            <input type="hidden">      <!-- invisible value sent with form -->
+            <input type="submit">      <!-- submit button -->
+            <input type="reset">       <!-- reset form values -->
+            <input type="button">      <!-- generic button -->
+
+            <button>Send</button>
+        </form>
+        
+        <form action="/crunchData" method="post">
+            <button>Send</button>
+        </form>
+
+    </body>
+</html>
