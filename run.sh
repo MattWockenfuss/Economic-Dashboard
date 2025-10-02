@@ -4,7 +4,7 @@
 #For debian/ubuntu environments only! If you run something else you will need to create your own script
 
 #If .venv doesn't exist, test install all dependencies then create
-if [ ! -d "/.venv/" ]; then
+if [ ! -d ".venv/" ]; then
     echo "Creating Python Virtual Environment Directory..."
     sudo apt-get install python3
     sudo apt-get install python3.10-venv
