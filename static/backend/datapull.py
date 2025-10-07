@@ -1,18 +1,21 @@
+#I was able to test everything except Seasonally Adjusted; if it isn't working, set
+#it to "True" in the read_BLS def
+
 import requests
 import json
-import prettytable
+import prettytable #holdover from sample code; could be useful
 
-def read_BLS(series_id, start_year, end_year):
+def read_BLS(series_id, start_year, end_year): #this actually calls fata from the API
     url = "https://api.bls.gov/publicAPI/v2/timeseries/data/"
     payload = {
-        "seriesid": [series_id],
+        "seriesid": [series_id], #the specific data table its pulling from
         "startyear": str(start_year),
         "endyear": str(end_year)
     }
 
     response = requests.post(url, json=payload)
 
-    if response.status_code != 200:
+    if response.status_code != 200: #error handling
         raise Exception(f"BLS API request failed: {response.status_code}, {response.text}")
 
     data = response.json()
@@ -23,7 +26,7 @@ def read_BLS(series_id, start_year, end_year):
     
     return results
 
-def write_ID(state, data_type, seasonally_adjusted):
+def write_ID(state_name, data_type, seasonally_adjusted):
     state_codes = {
         'Alabama': '01', 'Alaska': '02', 'Arizona': '04', 'Arkansas': '05', 'California': '06',
         'Colorado': '08', 'Connecticut': '09', 'Delaware': '10', 'Florida': '12', 'Georgia': '13',
@@ -39,19 +42,67 @@ def write_ID(state, data_type, seasonally_adjusted):
         'Puerto Rico': '72'
     } #No 67 state yet. Sad!
 
+    state_code = state_codes.get(state_name.title())
+    if not state_code:
+        raise ValueError(f"State '{state_name}' not recognized.")
+
+    prefix = "LASST"  # Local Area Statistics - State; data series header
+    #next expansion- incorporate different tables
+    
+    # Define suffixes for SA and NSA
+    data_type_suffixes = {
+        'unemployment_rate': {
+            True:  '000000000003',
+            False: '000000000004'
+        },
+        'unemployed': {
+            True:  '000000000007',
+            False: '000000000008'
+        },
+        'employment': {
+            True:  '000000000005',
+            False: '000000000006'
+        },
+        'labor_force': {
+            True:  '000000000009',
+            False: '000000000010'
+        }
+    }
+    #Maybe include data validation- suffix should always be 12 characters
+
+    data_type = data_type.lower()
+    if data_type not in data_type_suffixes:
+        raise ValueError(f"Data type '{data_type}' is not supported.")
+
+    suffix = data_type_suffixes[data_type][seasonally_adjusted]
+
+    return prefix + state_code + suffix
+
 def main():
     print("Developer Testing: BLS Data Read")
-    series_id = input("Enter BLS Series ID: ").strip()
-    start_year = input("Enter start year: ").strip()
-    end_year = input("Enter end year: ").strip()
+    state = input("Enter State: ").strip()
+    print("Available data types: unemployment_rate, employment, labor_force, unemployed")
+    data_type = input("Enter Data Type: ").strip().lower()
+    start_year = input("Enter Start Year: ").strip()
+    end_year = input("Enter End Year: ").strip()
+    sa_input = input("Seasonally Adjusted? (yes/no): ").strip().lower()
+    seasonally_adjusted = sa_input.startswith('y')
 
     try:
+        series_id = write_ID(state, data_type, seasonally_adjusted)
+        print(f"Using Series ID: {series_id}")
         data = read_BLS(series_id, start_year, end_year)
-        print(f"\n--- Top {min(10, len(data))} Data Points for {series_id} ---")
-        for item in data[:10]:  # Show latest 10 results
-            print(f"{item['year']} - {item['periodName']}: {item['value']}%")
+
+        if not data:
+            print("No data returned. Check your inputs or try different years.")
+            return
+
+        print(f"\n--- Top {min(10, len(data))} Data Points for {state.title()} ({data_type}) ---")
+        for item in data[:10]:
+            print(f"{item['year']} - {item['periodName']}: {item['value']}")
+
     except Exception as e:
-        print("Error fetching data:", str(e))
+        print("Error:", str(e))
 
 if __name__ == "__main__":
     main()
