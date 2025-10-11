@@ -1,18 +1,61 @@
 #I was able to test everything except Seasonally Adjusted; if it isn't working, set
 #it to "True" in the read_BLS def
 
+
+
 import requests
 import json
 import prettytable #holdover from sample code; could be useful
 
+
+API_KEY = "e3283f60a62541dcbc49267fd7d79d1e"
+
+
+
+headers = {'Content-type': 'application/json'}
+data = json.dumps({"seriesid": ['CUUR0000SA0','SUUR0000SA0'],"startyear":"2011", "endyear":"2014"})
+p = requests.post('https://api.bls.gov/publicAPI/v2/timeseries/data/', data=data, headers=headers)
+
+
+
+json_data = json.loads(p.text)
+
+
+
+for series in json_data['Results']['series']:
+    x=prettytable.PrettyTable(["series id","year","period","value","footnotes"])
+    seriesId = series['seriesID']
+    for item in series['data']:
+        year = item['year']
+        period = item['period']
+        value = item['value']
+        footnotes=""
+        for footnote in item['footnotes']:
+            if footnote:
+                footnotes = footnotes + footnote['text'] + ','
+        if 'M01' <= period <= 'M12':
+            x.add_row([seriesId,year,period,value,footnotes[0:-1]])
+    output = open(seriesId + '.txt','w')
+    output.write (x.get_string())
+    output.close()
+
+
+
+
+
 def read_BLS(series_id, start_year, end_year): #this actually calls fata from the API
     url = "https://api.bls.gov/publicAPI/v2/timeseries/data/"
+    #series_id = LAUST42000000000003
     payload = {
-        "seriesid": [series_id], #the specific data table its pulling from
-        "startyear": str(start_year),
-        "endyear": str(end_year)
-    }
-
+        "seriesid":[str(series_id)], 
+        "startyear":str(start_year), 
+        "endyear":str(end_year),
+        "catalog": True, 
+        "calculations": True, 
+        "annualaverage": True,
+        "registrationkey":API_KEY 
+        }
+    
     response = requests.post(url, json=payload)
 
     if response.status_code != 200: #error handling
@@ -24,6 +67,9 @@ def read_BLS(series_id, start_year, end_year): #this actually calls fata from th
     except (KeyError, IndexError):
         raise Exception("Invalid response format or series ID not found.")
     
+    
+
+
     return results
 
 def write_ID(state_name, data_type, seasonally_adjusted):
@@ -40,13 +86,13 @@ def write_ID(state_name, data_type, seasonally_adjusted):
         'Texas': '48', 'Utah': '49', 'Vermont': '50', 'Virginia': '51', 'Washington': '53',
         'West Virginia': '54', 'Wisconsin': '55', 'Wyoming': '56', 'District of Columbia': '11',
         'Puerto Rico': '72'
-    } #No 67 state yet. Sad!
+    }
 
     state_code = state_codes.get(state_name.title())
     if not state_code:
         raise ValueError(f"State '{state_name}' not recognized.")
 
-    prefix = "LASST"  # Local Area Statistics - State; data series header
+    prefix = "LAUST"  # Local Area Statistics - State; data series header
     #next expansion- incorporate different tables
     
     # Define suffixes for SA and NSA
@@ -87,11 +133,13 @@ def main():
     end_year = input("Enter End Year: ").strip()
     sa_input = input("Seasonally Adjusted? (yes/no): ").strip().lower()
     seasonally_adjusted = sa_input.startswith('y')
-
+    #seasonally_adjusted is true/false depending
     try:
-        series_id = write_ID(state, data_type, seasonally_adjusted)
-        print(f"Using Series ID: {series_id}")
-        data = read_BLS(series_id, start_year, end_year)
+        #series_id = write_ID(state, data_type, seasonally_adjusted)
+        #print(f"Using Series ID: {series_id}")
+        
+        #data = read_BLS(series_id, start_year, end_year)
+        data = read_BLS("LAUST42000000000003", 2020, 2025)
 
         if not data:
             print("No data returned. Check your inputs or try different years.")
