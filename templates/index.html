@@ -6,46 +6,13 @@
 
         <script src="https://unpkg.com/maplibre-gl@^5.10.0/dist/maplibre-gl.js"></script>
         <script type="module" src="static/main.js"></script>
+
+        <script src="https://cdn.plot.ly/plotly-3.1.0.min.js" charset="utf-8"></script>
         
     </head>
     <body>
-        <div id="map"></div>
-        
-        
-        <form action="/submit" method="post">
-            <input name="username">
-            <input name="age" type="number">
-            <input type="text">        <!-- single-line text -->
-            <input type="password">    <!-- hidden characters -->
-            <input type="email">       <!-- validates email format -->
-            <br>
-            <input type="number">      <!-- numeric input (arrows/spinners) -->
-            <input type="tel">         <!-- telephone number -->
-            <input type="url">         <!-- validates URL format -->
-            <input type="search">      <!-- styled for search boxes -->
-            <input type="date">        <!-- calendar picker -->
-            <br>
-            <input type="time">        <!-- time picker -->
-            <input type="datetime-local"> <!-- date + time (no timezone) -->
-            <input type="month">       <!-- month/year picker -->
-            <input type="week">        <!-- week/year picker -->
-            <input type="checkbox">    <!-- on/off toggle -->
-            <br>
-            <input type="radio">       <!-- single-choice among group -->
-            <input type="range">       <!-- slider for numbers -->
-            <input type="color">       <!-- color picker -->
-            <input type="file">        <!-- file upload -->
-            <input type="hidden">      <!-- invisible value sent with form -->
-            <input type="submit">      <!-- submit button -->
-            <input type="reset">       <!-- reset form values -->
-            <input type="button">      <!-- generic button -->
+        <div class="map" id="map">
 
-            <button>Send</button>
-        </form>
-        
-        <form action="/crunchData" method="post">
-            <button>Send</button>
-        </form>
-
+        </div>
     </body>
 </html>
