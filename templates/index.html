@@ -2,29 +2,15 @@
     <head>
         <title>Economic Dashboard</title>
         <link rel="stylesheet" href="static/styles.css">
+        <link href="https://unpkg.com/maplibre-gl@^5.10.0/dist/maplibre-gl.css" rel="stylesheet" />
+
+        <script src="https://unpkg.com/maplibre-gl@^5.10.0/dist/maplibre-gl.js"></script>
         <script type="module" src="static/main.js"></script>
+        
     </head>
     <body>
-        This is the main body of our Economic Dashboard!
-        <ol>
-            <li>Yurt</li>
-            <li>FannieMae</li>
-            <li>FreddyMac</li>
-            <li>Bureau of Labor Statics</li>
-            <li>Federal Reserve Economic Database</li>
-            <li>Yurt2</li>
-            <li>
-                <h2>Ages</h2>
-                <ul>
-                    <li>Traditions</li>
-                    <li>Renassiance</li>
-                    <li>Discovery</li>
-                    <li>Reformation</li>
-                    <li>Absolutism</li>
-                    <li>Revolutions</li>
-                </ul>
-            </li>
-        </ol>
+        <div id="map"></div>
+        
         
         <form action="/submit" method="post">
             <input name="username">
