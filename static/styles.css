@@ -16,6 +16,11 @@ html {
     font-size: 28px;
 }
 
+.nopadding {
+    padding: 0;
+    margin: 0;
+}
+
 #map-container {
     position: relative;
     width: 100%;
@@ -33,27 +38,91 @@ html {
 
 .overlay {
     position: absolute;
-    z-index: 10;         /* higher = above the map */
-
-    padding: 10px 15px;
+    z-index: 10;
+    padding: 10px 15px 10px 10px;
     background: rgba(0, 0, 0, 0.7);
     color: white;
     border-radius: 6px;
-    pointer-events: auto;   /* clickable */
+    pointer-events: auto;
+    border-radius: 17px;
+    border: 2px dashed red;
+    background: rgba(0, 0, 0, 0.2);
 }
 
 #leaderboard {
-    top: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 18px;
+    top: 250px;
     left: 20px;
+    width: 240px;
 }
 #year {
-    bottom: 20px;
-    right: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 96px;
+    font-weight: bold;
+    top: 20px;
+    left: 20px;
 }
 #forecast {
     bottom: 20px;
     left: 20px;
 }
+#timeslider {
+    border: none;
+  position: absolute;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  width: 40vw;                 /* ≈ 40% of the screen width */
+  display: flex;
+  justify-content: center;     /* center the slider inside */
+  background: transparent;     /* no box behind it */
+  display: flex;
+  flex-direction: column;      /* stack label above slider */
+  align-items: center;   
+}
+
+/* The slider itself */
+#dataSlider {
+  width: 100%;                 /* fill the #timeslider width */
+  margin: 0;
+  appearance: none;
+  background: transparent;     /* track will be styled via pseudo-element */
+}
+
+/* Track: thin 2px red line (WebKit: Chrome, Edge, Safari) */
+#dataSlider::-webkit-slider-runnable-track {
+  height: 3px;
+  background: #ff3333;         /* red line */
+  border-radius: 1px;
+}
+
+#dataSlider::-webkit-slider-thumb {
+  appearance: none;
+  width: 13px;                  /* thin vertical bar */
+  height: 60px;                /* taller than track */
+  background: #ffffff;         /* white line */
+  border: 1px solid #ff3333;   /* red outline */
+  margin-top: -32px;           /* roughly center on 2px track */
+  cursor: pointer;
+}
+
+#datasetLabel {
+  margin-top: 4px;
+  font-weight: bold;
+  color: white;
+}
+
+#sliderLabel {
+  color: white;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
 #mapmode {
     top: 20px;
     right: 20px;

@@ -1,3 +1,19 @@
+const slider = document.getElementById("dataSlider");
+const label = document.getElementById("sliderLabel");
+const bigyearlabel = document.getElementById("year");
+
+// initialize
+label.innerText = slider.value;
+
+// update live
+slider.addEventListener("input", () => {
+  label.innerText = slider.value;
+  bigyearlabel.innerText = slider.value;
+});
+
+
+
+
 const colorThemes = {
   gdp: [
     [0, "#0f172a"],
@@ -79,9 +95,6 @@ const datasets = {
     68,60,63,67,69,58,61,66,72,74
   ]
 }
-
-function GenChoropleth() {
-  //If data is for choropleth
 
 
 
