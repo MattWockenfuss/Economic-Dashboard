@@ -16,10 +16,11 @@ slider.addEventListener("input", () => {
   bigyearlabel.innerText = slider.value;
 });
 
+//Asynchronous timer that triggers the year animation
 play.addEventListener("click", () => {
   if (isPlaying == false) {
     isPlaying = true;
-    intervalID = setInterval( () => {
+    intervalID = setInterval( () => { //This defines the interval handler to 500 ms, (which can be changed)
       var year = parseInt(slider.value);
       if ((year += 1) > slider.max) {
         clearInterval(intervalID);
@@ -33,11 +34,12 @@ play.addEventListener("click", () => {
     }, 500);
   }
   else {
-    clearInterval(intervalID);
+    clearInterval(intervalID); //If the user presses the play button, and the interval is already created, stop it.
     isPlaying = false;
   }
 });
 
+//Event definition for decrementing by one year
 rewind.addEventListener("click", () => {
   var year = parseInt(slider.value);
   if ((year -= 1) < slider.min) return;
@@ -48,6 +50,7 @@ rewind.addEventListener("click", () => {
   }
 });
 
+//Event definition for incrementing by one year
 forward.addEventListener("click", () => {
   var year = parseInt(slider.value);
   if ((year += 1) > slider.max) return;
@@ -140,7 +143,40 @@ const datasets = {
   ]
 }
 
+function genLeaderboard(name) {
+  const container = document.getElementById("leaderboard");
 
+  container.innerHTML = ''; //Clears all child elements
+
+  const locations = [
+      "CA","NY","TX","FL","IL","PA","OH","GA","NC","NJ",
+      "WA","MA","VA","MI","AZ","TN","IN","CO","MN","WI",
+      "MD","MO","SC","AL","LA","KY","OR","CT","IA","OK",
+      "UT","NV","AR","MS","KS","NM","NE","WV","ID","HI",
+      "NH","ME","MT","RI","DE","SD","ND","VT","WY","AK","DC"
+    ];
+
+    const values = datasets[name];
+
+    const header = document.createElement("h3"); //This block adds the heading to the leaderboard along with a br
+    header.textContent = "Leaderboard";
+    header.className = "nopadding";
+    container.appendChild(header);
+    container.appendChild(document.createElement("br"));
+
+  for (var i = 0; i < locations.length; i++) { //The overlay uses a two column setup, so the state gets the left side, and the value gets the right
+    const spanleft = document.createElement("span");
+    spanleft.textContent = locations[i];
+    spanleft.style.alignContent = "left";
+
+    const spanright = document.createElement("span");
+    spanright.textContent = values[i];
+    spanright.style.alignContent = "right";
+
+    container.appendChild(spanleft);
+    container.appendChild(spanright);
+  }
+}
 
 function GenChoropleth() {
   const container = document.getElementById('mapplot');
@@ -185,6 +221,9 @@ function GenChoropleth() {
     const r = container.getBoundingClientRect();
     Plotly.relayout(container, { width: r.width, height: r.height });
   });
+
+  genLeaderboard("gdp");
+
   return true;
 }
 
@@ -245,6 +284,8 @@ function setDataset(name) {
       frame: { duration: 5700, redraw: false }
     });
   });
+
+  genLeaderboard(name);
 }
 
 window.setDataset = setDataset;
