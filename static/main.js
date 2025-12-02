@@ -1,40 +1,3 @@
-//    https://plotly.com/javascript/reference/choroplethmap/
-
-/*
-var data = [{
-  type: "choroplethmap", 
-  locations: ["NY", "MA", "VT", "TX", "PA", "VT", "MA", "MN", "HI", "AK"], 
-  z: [-50, -10, -20, -90, -40, -15, -100, -200, -30, -20],
-  geojson: "https://raw.githubusercontent.com/python-visualization/folium/master/examples/data/us-states.json"
-}];
-
-const layout = {
-  map: {
-    style: "carto-darkmatter-nolabels", // any MapLibre style
-    center: { lat: 38.8283, lon: -98.5795 },
-    zoom: 4.5,
-    bounds: { east: -60, north: 72, south: 17, west: -172},
-    margin: {t:0,r:0,b:0,l:0}
-  }
-};
-
-var config = {
-    scrollZoom: true,      //users cant scroll
-    editable: false,        //users cant edit the data
-    displayModeBar: false,   //the command bar, options, etc...
-    displaylogo: false        //displays the logo on modebar
-};
-
-Plotly.newPlot('mapplot', data, layout, config);
-
-
-
-map.on('mousemove', (e) => {
-      console.log(`lon: ${e.lngLat.lng.toFixed(4)}, lat: ${e.lngLat.lat.toFixed(4)}`);
-});
-*/
-<<<<<<< HEAD
-
 const colorThemes = {
   gdp: [
     [0, "#0f172a"],
@@ -116,13 +79,10 @@ const datasets = {
     68,60,63,67,69,58,61,66,72,74
   ]
 }
-=======
->>>>>>> 8bb9b7111b2c9621cf979699e972c5de85d99a21
 
 function GenChoropleth() {
   //If data is for choropleth
 
-<<<<<<< HEAD
 
 
 function GenChoropleth() {
@@ -147,27 +107,12 @@ function GenChoropleth() {
 
   const layout = {
     margin: {t:0, r:0, b:0, l:0, pad: 0},
-=======
-  var data = [{
-    type: "choroplethmap", 
-    locations: ["NY", "MA", "VT", "TX", "PA", "VT", "MA", "MN", "HI", "AK"], 
-    z: [-50, -10, -20, -90, -40, -15, -100, -200, -30, -20],
-    geojson: "https://raw.githubusercontent.com/python-visualization/folium/master/examples/data/us-states.json"
-  }];
-
-  const layout = {
->>>>>>> 8bb9b7111b2c9621cf979699e972c5de85d99a21
     map: {
       style: "carto-darkmatter-nolabels", // any MapLibre style
       center: { lat: 38.8283, lon: -98.5795 },
       zoom: 4.5,
-<<<<<<< HEAD
       bounds: { east: -60, north: 72, south: 17, west: -172}
       
-=======
-      bounds: { east: -60, north: 72, south: 17, west: -172},
-      margin: {t:0,r:0,b:0,l:0}
->>>>>>> 8bb9b7111b2c9621cf979699e972c5de85d99a21
     }
   };
 
@@ -179,14 +124,10 @@ function GenChoropleth() {
   };
 
   Plotly.newPlot('mapplot', data, layout, config);
-<<<<<<< HEAD
   window.addEventListener('resize', () => {
     const r = container.getBoundingClientRect();
     Plotly.relayout(container, { width: r.width, height: r.height });
   });
-=======
-
->>>>>>> 8bb9b7111b2c9621cf979699e972c5de85d99a21
   return true;
 }
 
@@ -222,7 +163,6 @@ function GenDensity() {
   return true;
 }
 
-<<<<<<< HEAD
 GenChoropleth();
 
 function setDataset(name) {
@@ -251,6 +191,3 @@ function setDataset(name) {
 }
 
 window.setDataset = setDataset;
-=======
-GenChoropleth();
->>>>>>> 8bb9b7111b2c9621cf979699e972c5de85d99a21
