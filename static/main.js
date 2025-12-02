@@ -1,6 +1,11 @@
 const slider = document.getElementById("dataSlider");
 const label = document.getElementById("sliderLabel");
 const bigyearlabel = document.getElementById("year");
+const rewind = document.getElementById("rewind");
+const play = document.getElementById("play");
+const forward = document.getElementById("forward");
+var isPlaying = false;
+var intervalID = 0;
 
 // initialize
 label.innerText = slider.value;
@@ -11,8 +16,47 @@ slider.addEventListener("input", () => {
   bigyearlabel.innerText = slider.value;
 });
 
+play.addEventListener("click", () => {
+  if (isPlaying == false) {
+    isPlaying = true;
+    intervalID = setInterval( () => {
+      var year = parseInt(slider.value);
+      if ((year += 1) > slider.max) {
+        clearInterval(intervalID);
+        isPlaying = false;
+      }
+      else {
+        slider.value = year.toString();
+        label.innerText = slider.value;
+        bigyearlabel.innerText = slider.value;
+      }
+    }, 500);
+  }
+  else {
+    clearInterval(intervalID);
+    isPlaying = false;
+  }
+});
 
+rewind.addEventListener("click", () => {
+  var year = parseInt(slider.value);
+  if ((year -= 1) < slider.min) return;
+  else {
+    slider.value = year.toString();
+    label.innerText = slider.value;
+    bigyearlabel.innerText = slider.value;
+  }
+});
 
+forward.addEventListener("click", () => {
+  var year = parseInt(slider.value);
+  if ((year += 1) > slider.max) return;
+  else {
+    slider.value = year.toString();
+    label.innerText = slider.value;
+    bigyearlabel.innerText = slider.value;
+  }
+});
 
 const colorThemes = {
   gdp: [
