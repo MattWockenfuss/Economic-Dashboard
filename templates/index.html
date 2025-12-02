@@ -44,13 +44,27 @@
                 />
 
             </div>
+            <div class="overlay nobackground" id="animationBTNs">
+                <button class="nobackground"><img src="/static/images/back.png"></button>
+                <button class="nobackground"><img src="/static/images/play.png"></button>
+                <button class="nobackground"><img src="/static/images/forward.png"></button>
+
+            </div>
             <div class="overlay" id="forecast">
                 Hello
             </div>
             <div class="overlay" id="mapmode">
                 <table>
-                    <tr><td><button onclick="setDataset('gdp')">GDP</button><td><button onclick="setDataset('population')">Population</button></td><td><button onclick="setDataset('unemployment')">Unemployment</button></td><td><button onclick="setDataset('income')">Income</button></td><td><button onclick="setDataset('costOfLiving')">Cost of Living</button></td><td><button onclick="setDataset('growth')">Economic Growth</button></td></tr>
-                    <tr><td><button>7</button></td><td><button>8</button></td><td><button>9</button></td><td><button>10</button></td><td><button>11</button></td><td><button>12</button></td></tr>
+                    <tr>
+                        <td><button onclick="setDataset('gdp')">GDP</button><td><button onclick="setDataset('population')">Population</button></td>
+                    </tr>
+                    <tr>
+                        <td><button onclick="setDataset('unemployment')">Unemployment</button></td><td><button onclick="setDataset('income')">Income</button></td>
+                    </tr>
+                    <tr>
+                        <td><button onclick="setDataset('costOfLiving')">Cost of Living</button></td><td><button onclick="setDataset('growth')">Economic Growth</button></td>
+                    </tr>
+                    
                 </table>
             </div>
         </div>

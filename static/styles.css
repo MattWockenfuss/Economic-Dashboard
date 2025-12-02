@@ -21,6 +21,14 @@ html {
     margin: 0;
 }
 
+.nobackground {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+
+
 #map-container {
     position: relative;
     width: 100%;
@@ -64,8 +72,8 @@ html {
     left: 20px;
 }
 #forecast {
-    bottom: 20px;
-    left: 20px;
+    bottom: 100px;
+    right: 20px;
 }
 #timeslider {
     border: none;
@@ -97,6 +105,12 @@ html {
   border-radius: 1px;
 }
 
+
+#mapmode button {
+    border-radius: 11px;
+    width: 100%;
+}
+
 #dataSlider::-webkit-slider-thumb {
   appearance: none;
   width: 13px;                  /* thin vertical bar */
@@ -113,6 +127,20 @@ html {
   color: white;
 }
 
+#animationBTNs {
+    bottom: 20px;
+    left: 20px;
+    background-color: transparent;
+    border: none;
+}
+#animationBTNs button:hover{
+    border: 3px solid orange;
+}
+
+#animationBTNs img {
+    width: 80px;
+}
+
 #sliderLabel {
   color: white;
   font-size: 28px;
@@ -124,6 +152,6 @@ html {
 }
 
 #mapmode {
-    top: 20px;
-    right: 20px;
+    top: 5px;
+    right: 5px;
 }
