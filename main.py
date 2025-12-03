@@ -16,35 +16,36 @@ import pandas as pd
 import matplotlib.pyplot as plt 
 import Database
 
-from Database import (
-    init_db, 
-    populate_states,
-    insert_gdp,
-    insert_population,
-    insert_unemployment,
-    insert_income,
-    insert_cost_of_living,
-    insert_growth,
-    get_gdp,
-    get_population,
-    get_unemployment,
-    get_income,
-    get_cost_of_living,
-    get_growth,
-    get_all_data_for_year
-)
+# from Database import (
+#     init_db, 
+#     populate_states,
+#     insert_gdp,
+#     insert_population,
+#     insert_unemployment,
+#     insert_income,
+#     insert_cost_of_living,
+#     insert_growth,
+#     get_gdp,
+#     get_population,
+#     get_unemployment,
+#     get_income,
+#     get_cost_of_living,
+#     get_growth,
+#     get_all_data_for_year
+# )
+
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 templates = Jinja2Templates(directory="templates")
 
-# Initialize database on startup
-@app.on_event("startup")
-async def startup_event():
-    init_db()
-    populate_states()
-    print("Database initialized on startup!")
+# # Initialize database on startup
+# @app.on_event("startup")
+# async def startup_event():
+#     init_db()
+#     populate_states()
+#     print("Database initialized on startup!")
 
 
 @app.get("/")
@@ -57,8 +58,9 @@ async def home(request: Request):
 
 VALID_MAPMODES = ["POPULATION", "GDP"]
 
-@app.post("/mapdata")
-async def mapdata(mapmode: int = Form(...)):
+@app.get("/mapmode/{mapmode}")
+async def mapdata(mapmode):
+    print(f"HELLO {mapmode}")
     states = [
         "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
         "HI","ID","IL","IN","IA","KS","KY","LA","ME","MD",
@@ -85,12 +87,24 @@ async def mapdata(mapmode: int = Form(...)):
     json_data = json.dumps(output, indent=4)
 
     print(json_data)
+    return json_data
+
+
+
+
 
     print(f"This function makes a request for data from the database")
     if mapmode not in VALID_MAPMODES:
         print(f"[ERROR] USER tried to pull '{mapmode}', which is not a valid mapmode!")
 
     #okay so the mapmode is defined, lets go fetch
+
+
+
+
+
+
+
 
 
 

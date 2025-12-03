@@ -12,6 +12,16 @@ var gdp = null;
 
 
 
+//on startup lets make a request
+async function getMapData() {
+  const response = await fetch("/mapmode/gdp");
+  console.log(response);
+  const data = await response.json();
+  console.log(data);
+}
+getMapData();
+
+
 // initialize
 label.innerText = slider.value;
 
