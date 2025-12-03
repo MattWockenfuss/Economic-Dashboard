@@ -8,6 +8,8 @@ from fastapi import Form
 
 import requests
 import json
+import random
+
 import numpy as np
 import pandas as pd
 
@@ -26,6 +28,54 @@ def read_root():
 @app.get("/home", response_class=HTMLResponse)
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request, "title":"Welcome!"})
+
+
+@app.post("/mapdata")
+async def mapdata(mapmode: int = Form(...)):
+    states = [
+        "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
+        "HI","ID","IL","IN","IA","KS","KY","LA","ME","MD",
+        "MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ",
+        "NM","NY","NC","ND","OH","OK","OR","PA","RI","SC",
+        "SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"
+    ]
+
+    years = [2021, 2022, 2023]
+
+    gdp = {}
+
+    for state in states:
+        gdp[state] = {}
+        for year in years:
+            # random GDP value (replace with real data if needed)
+            gdp[state][str(year)] = random.randint(100, 1000)
+
+    output = {
+        "gdp": gdp
+    }
+
+    
+    json_data = json.dumps(output, indent=4)
+
+    print(json_data)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 @app.post("/submit")

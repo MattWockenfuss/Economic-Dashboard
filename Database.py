@@ -27,6 +27,15 @@ def get_db():
         conn.close()
 
 
+'''
+
+
+
+
+
+
+'''
+
 def init_db():
     """Initialize database with required tables."""
     with get_db() as conn:
