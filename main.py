@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 
 import matplotlib.pyplot as plt 
-
+import Database
 
 from database import (
     init_db, 
@@ -46,6 +46,7 @@ def read_root():
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request, "title":"Welcome!"})
 
+VALID_MAPMODES = ["POPULATION", "GDP"]
 
 @app.post("/mapdata")
 async def mapdata(mapmode: int = Form(...)):
@@ -76,32 +77,26 @@ async def mapdata(mapmode: int = Form(...)):
 
     print(json_data)
 
-
-
-VALID_MAPMODES = ["POPULATION", "GDP"]
-
-
-
-def pullFromDatabase(mapmode):
     print(f"This function makes a request for data from the database")
     if mapmode not in VALID_MAPMODES:
         print(f"[ERROR] USER tried to pull '{mapmode}', which is not a valid mapmode!")
 
-
-
-    #alright so the user is pulling from population, or GDP, or something similar,
-    #next we want to make a call to the SQLite database, pulling the appropriate data, and make an JSON packet to send to the front end
+    #okay so the mapmode is defined, lets go fetch
 
 
 
-
-
-
-
-
-
-
-
+{
+  "mode": "GDP",
+  "data": {
+    "CA": {
+      "1980": 12345.67,
+      "1981": 13000.11
+    },
+    "TX": {
+      "1980": 9876.54
+    }
+  }
+}
 
 
 

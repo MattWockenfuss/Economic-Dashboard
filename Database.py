@@ -121,17 +121,17 @@ def get_bls_data(state: Optional[str] = None, year: Optional[int] = None,
     """Retrieve BLS data with optional filters."""
     with get_db() as conn:
         cursor = conn.cursor()
-          query = "SELECT * FROM bls_data WHERE 1=1"
-          params = []
+        query = "SELECT * FROM bls_data WHERE 1=1"
+        params = []
         
         if state:
             query += " AND state = ?"
-              params.append(state)
+            params.append(state)
         if year:
             query += " AND year = ?"
-              params.append(year)
+            params.append(year)
         if metric_type:
-          query += " AND metric_type = ?"
+            query += " AND metric_type = ?"
             params.append(metric_type)
         
         query += " ORDER BY year DESC, period DESC"
@@ -249,10 +249,20 @@ def getData(mapmode):
             data[state_code] = {}
 
         #otherwise we store it
-        data[state_code][year] = value
+        data[year][state_code] = value
+
+    packet = {
+        "ok": True,
+        "mapmode": mapmode,
+        "data": data
+    }
 
     #okay so now we have our data we want to send to the front end
-    return json.dumps(packet)
+    return packet
+
+
+
+
 
 
 

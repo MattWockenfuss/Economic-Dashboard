@@ -7,6 +7,11 @@ const forward = document.getElementById("forward");
 var isPlaying = false;
 var intervalID = 0;
 
+var gdp = null;
+
+
+
+
 // initialize
 label.innerText = slider.value;
 
@@ -259,12 +264,23 @@ function GenDensity() {
   return true;
 }
 
+function accept(data){
+  data.data[2001]
+}
+
+
+
+
+
+
+
 GenChoropleth();
 
 function setDataset(name) {
   const values = datasets[name];
-  const colorscale = colorThemes[name];
 
+
+  const colorscale = colorThemes[name];
   const min = Math.min(...values);
   const max = Math.max(...values);
 
