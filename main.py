@@ -15,10 +15,27 @@ import pandas as pd
 
 import matplotlib.pyplot as plt 
 
+
+from database import (
+    init_db, 
+    populate_states,
+    insert_bls_data, 
+    get_bls_data,
+    insert_fred_data,
+    get_fred_data
+)
+
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 templates = Jinja2Templates(directory="templates")
+
+# Initialize database on startup
+@app.on_event("startup")
+async def startup_event():
+    init_db()
+    populate_states()
+    print("Database initialized on startup!")
 
 
 @app.get("/")
@@ -84,6 +101,58 @@ async def submit(username: str = Form(...), age: int = Form(...)):
     arr = np.array[1,2,3,4,5]
     return {"user": username, "age": age}
 
+# New database-related endpoints
+@app.get("/api/bls/{state}")
+async def get_state_bls_data(state: str, year: int = None, metric: str = None):
+    """Get BLS data for a specific state"""
+    data = get_bls_data(state=state, year=year, metric_type=metric)
+    return {"state": state, "data": data}
+
+
+@app.get("/api/fred/{state}")
+async def get_state_fred_data(state: str, metric: str = None):
+   
+    data = get_fred_data(state=state, metric_type=metric)
+    return {"state": state, "data": data}
+
+
+@app.post("/api/fetch-and-store")
+async def fetch_and_store_data(state: str, metric: str, start_year: int, end_year: int):
+
+    # This integrates with Our existing BLS data fetching logic
+    SERIES = "LNS14000000"
+    
+    payload = {
+        "seriesid": [SERIES],
+        "startyear": str(start_year),
+        "endyear": str(end_year),
+    }
+    
+    r = requests.post("https://api.bls.gov/publicAPI/v2/timeseries/data/", json=payload)
+    r.raise_for_status()
+    data = r.json()["Results"]["series"][0]["data"]
+    
+    # Store in database
+    stored_count = 0
+    for item in data:
+        if item["period"] != "M13":  # Skip annual average
+            insert_bls_data(
+                series_id=SERIES,
+                state=state,
+                
+                year=int(item["year"]),
+                period=item["period"],
+                value=float(item["value"]),
+                metric_type=metric
+            )
+            stored_count += 1
+
+
+    
+    return {"message": f"Stored {stored_count} data points", "state": state}
+
+
+
 @app.post("/crunchData")
 async def crunch():
     print("Attempting!")
@@ -120,6 +189,17 @@ async def crunch():
     df = df.sort_values("date")[["date", "unemployment_rate"]]
     df = df[df["date"] >= pd.Timestamp(ten_years_ago.replace(day=1))].tail(120).reset_index(drop=True)
 
+     #Store fetched data in database
+    for _, row in df.iterrows():
+        insert_bls_data(
+            series_id=SERIES,
+            state="National",
+            year=row["date"].year,
+            period=f"M{row['date'].month:02d}",
+            value=row["unemployment_rate"],
+            metric_type="unemployment_rate"
+        )
+    
     print(df.head())
     print(df.tail(), len(df))
 
