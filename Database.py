@@ -113,6 +113,8 @@ def insert_bls_data(series_id: str, state: str, year: int, period: str,
         ''', (series_id, state, year, period, value, metric_type))
 
 
+
+
 def get_bls_data(state: Optional[str] = None, year: Optional[int] = None,
                  metric_type: Optional[str] = None):
                    
@@ -201,6 +203,58 @@ def populate_states():
             VALUES (?, ?, ?)
         ''', states_data)
         print(f"Populated {len(states_data)} states")
+
+
+
+def getData(mapmode):
+    #we can assume that the user is pulling specific data about the FRED or BLS in a given map mode.
+    #we want to return all of the data associated with the 'gdp' mapmode,
+    
+    
+
+    sqlcmd = f"""
+        SELECT state_code, year, value
+        FROM {mapmode}
+        ORDER BY state_code, year
+    """
+
+    cur = get_db.cursor()
+    try:
+        cur.execute(sqlcmd)
+        rows = cur.fetchall()
+    finally:
+        cur.close()
+    
+    if not rows:
+        print(f"[ERROR] There was an error fetching the data for '{mapmode}'")
+
+    # so now we have the data, looks like so
+    #{
+    #  "CA": { "1980": 12345.6, "1981": 13000.2 },
+    #  "TX": { "1980": 9000.1 }
+    #}
+
+    #so lets reformat it
+    data = {}
+    for row in rows:
+        state_code = row[0]
+        year = row[1]
+        value = row[2]
+
+        #json keys must be strings so convert, might change format later
+        year = str(year)
+
+        #if the state hasnt been added, then add it
+        if state_code not in data:
+            data[state_code] = {}
+
+        #otherwise we store it
+        data[state_code][year] = value
+
+    #okay so now we have our data we want to send to the front end
+    return json.dumps(packet)
+
+
 
 
 # Run initialization when this module is executed directly

@@ -78,6 +78,19 @@ async def mapdata(mapmode: int = Form(...)):
 
 
 
+VALID_MAPMODES = ["POPULATION", "GDP"]
+
+
+
+def pullFromDatabase(mapmode):
+    print(f"This function makes a request for data from the database")
+    if mapmode not in VALID_MAPMODES:
+        print(f"[ERROR] USER tried to pull '{mapmode}', which is not a valid mapmode!")
+
+
+
+    #alright so the user is pulling from population, or GDP, or something similar,
+    #next we want to make a call to the SQLite database, pulling the appropriate data, and make an JSON packet to send to the front end
 
 
 
