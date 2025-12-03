@@ -16,13 +16,22 @@ import pandas as pd
 import matplotlib.pyplot as plt 
 import Database
 
-from database import (
+from Database import (
     init_db, 
     populate_states,
-    insert_bls_data, 
-    get_bls_data,
-    insert_fred_data,
-    get_fred_data
+    insert_gdp,
+    insert_population,
+    insert_unemployment,
+    insert_income,
+    insert_cost_of_living,
+    insert_growth,
+    get_gdp,
+    get_population,
+    get_unemployment,
+    get_income,
+    get_cost_of_living,
+    get_growth,
+    get_all_data_for_year
 )
 
 app = FastAPI()
