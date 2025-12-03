@@ -235,27 +235,59 @@ Then open http://127.0.0.1:8000/home in your browser.
    - Multiple data types supported
    - API integration tested
 
-### 🚧 In Progress / Next Steps
+### 🚧 In Progress / Next Steps (Prioritized)
 
-1. **Connect Backend to Frontend**
+1. **🔴 HIGH PRIORITY: Connect Backend to Frontend**
    - Currently, frontend uses hardcoded sample data
    - Need to create API endpoints that call BLS/FRED data pullers
    - Return real data to frontend for visualization
+   - *Estimated effort: 2-4 hours*
 
-2. **Complete FRED Integration**
+2. **🟡 MEDIUM PRIORITY: Complete FRED Integration**
    - Finish GDP data fetching
    - Add proper state code mappings
-   - Handle API key management
+   - Handle API key management securely (see note below)
+   - *Estimated effort: 2-3 hours*
 
-3. **Add Historical Data**
+3. **🟡 MEDIUM PRIORITY: Add Historical Data**
    - Frontend supports 1976-2024
    - Need to populate with real historical data for each year
+   - *Estimated effort: 4-6 hours (depends on API rate limits)*
 
-4. **Potential Improvements**
+4. **🟢 NICE TO HAVE: Potential Improvements**
    - Add loading states for API calls
    - Cache API responses
    - Add error handling for failed API calls
    - Add more economic indicators
+
+---
+
+### 🔐 API Key Security Note
+
+When handling API keys (especially for FRED), use secure practices:
+
+```bash
+# Option 1: Environment variables (recommended)
+export FRED_API_KEY="your-key-here"
+export BLS_API_KEY="your-key-here"
+
+# Then in Python:
+import os
+api_key = os.environ.get("FRED_API_KEY")
+```
+
+```python
+# Option 2: Create a .env file (add .env to .gitignore!)
+# .env file:
+# FRED_API_KEY=your-key-here
+
+# Then use python-dotenv:
+from dotenv import load_dotenv
+load_dotenv()
+api_key = os.getenv("FRED_API_KEY")
+```
+
+⚠️ **Never commit API keys to the repository!** The BLS registration key in `datapull-BLS.py` should be moved to environment variables.
 
 ---
 
