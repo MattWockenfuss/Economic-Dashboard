@@ -69,11 +69,11 @@ async def mapdata(mapmode):
         "SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"
     ]
 
-    years = [2021, 2022, 2023]
+    years = [2000, 2001, 2021, 2022, 2023]
 
     gdp = {}
 
-    for year in years:
+    for year in range(1950, 2025):
         gdp[str(year)] = {}
         for state in states:
             # random GDP value (replace with real data if needed)
