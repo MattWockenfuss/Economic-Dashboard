@@ -9,7 +9,7 @@ DATABASE_PATH = "economic_data.db"
 def get_connection():
     """Create a database connection."""
     conn = sqlite3.connect(DATABASE_PATH)
-    conn.row_factory = sqlite3.Row  # Allows accessing columns by name
+    conn.row_factory = sqlite3.Row
     return conn
 
 
@@ -32,42 +32,92 @@ def init_db():
     with get_db() as conn:
         cursor = conn.cursor()
         
-        # Table for BLS time series data (unemployment, employment, etc.)
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS bls_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                series_id TEXT NOT NULL,
-                state TEXT,
-                year INTEGER NOT NULL,
-                period TEXT NOT NULL,
-                value REAL,
-                metric_type TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE(series_id, year, period)
-            )
-        ''')
-        
-        # Table for FRED data (GDP, etc.)
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS fred_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                series_id TEXT NOT NULL,
-                state TEXT,
-                date TEXT NOT NULL,
-                value REAL,
-                metric_type TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE(series_id, date)
-            )
-        ''')
-        
-        # Table for state metadata
+        # Table for states (reference table)
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS states (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT UNIQUE NOT NULL,
                 abbreviation TEXT UNIQUE NOT NULL,
                 fips_code TEXT
+            )
+        ''')
+        
+        # Table for GDP data
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS gdp_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                state TEXT NOT NULL,
+                year INTEGER NOT NULL,
+                value REAL,
+                source TEXT DEFAULT 'FRED',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(state, year)
+            )
+        ''')
+        
+        # Table for Population data
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS population_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                state TEXT NOT NULL,
+                year INTEGER NOT NULL,
+                value REAL,
+                source TEXT DEFAULT 'CENSUS',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(state, year)
+            )
+        ''')
+        
+        # Table for Unemployment data
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS unemployment_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                state TEXT NOT NULL,
+                year INTEGER NOT NULL,
+                period TEXT,
+                value REAL,
+                source TEXT DEFAULT 'BLS',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(state, year, period)
+            )
+        ''')
+        
+        # Table for Income data (median household income)
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS income_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                state TEXT NOT NULL,
+                year INTEGER NOT NULL,
+                value REAL,
+                metric_type TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(state, year)
+            )
+        ''')
+        
+        # Table for Cost of Living data
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS cost_of_living_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                state TEXT NOT NULL,
+                year INTEGER NOT NULL,
+                value REAL,
+                source TEXT DEFAULT 'BEA',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(state, year)
+            )
+        ''')
+        
+        # Table for Economic Growth data (GDP growth rate)
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS growth_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                state TEXT NOT NULL,
+                year INTEGER NOT NULL,
+                value REAL,
+                source TEXT DEFAULT 'BEA',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(state, year)
             )
         ''')
         
@@ -84,86 +134,268 @@ def init_db():
         ''')
         
         # Create indexes for faster queries
-        cursor.execute('CREATE INDEX IF NOT EXISTS idx_bls_state ON bls_data(state)')
-        cursor.execute('CREATE INDEX IF NOT EXISTS idx_bls_year ON bls_data(year)')
-        cursor.execute('CREATE INDEX IF NOT EXISTS idx_fred_state ON fred_data(state)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_gdp_state ON gdp_data(state)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_gdp_year ON gdp_data(year)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_pop_state ON population_data(state)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_pop_year ON population_data(year)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_unemp_state ON unemployment_data(state)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_unemp_year ON unemployment_data(year)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_income_state ON income_data(state)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_income_year ON income_data(year)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_col_state ON cost_of_living_data(state)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_col_year ON cost_of_living_data(year)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_growth_state ON growth_data(state)')
+        cursor.execute('CREATE INDEX IF NOT EXISTS idx_growth_year ON growth_data(year)')
         
         print("Database initialized successfully!")
 
 
-# CRUD operations for BLS data
-def insert_bls_data(series_id: str, state: str, year: int, period: str, 
-                    value: float, metric_type: str):
-    """Insert or update BLS data point."""
+# ============================================
+# INSERT FUNCTIONS - Use these to push data
+# ============================================
+
+def insert_gdp(state: str, year: int, value: float, source: str = "FRED"):
+    """Insert GDP data for a state."""
     with get_db() as conn:
         cursor = conn.cursor()
         cursor.execute('''
-            INSERT OR REPLACE INTO bls_data 
-            (series_id, state, year, period, value, metric_type)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', (series_id, state, year, period, value, metric_type))
+            INSERT OR REPLACE INTO gdp_data (state, year, value, source)
+            VALUES (?, ?, ?, ?)
+        ''', (state, year, value, source))
 
 
-def get_bls_data(state: Optional[str] = None, year: Optional[int] = None,
-                 metric_type: Optional[str] = None):
-                   
-    """Retrieve BLS data with optional filters."""
-    with get_db() as conn:
-        cursor = conn.cursor()
-          query = "SELECT * FROM bls_data WHERE 1=1"
-          params = []
-        
-        if state:
-            query += " AND state = ?"
-              params.append(state)
-        if year:
-            query += " AND year = ?"
-              params.append(year)
-        if metric_type:
-          query += " AND metric_type = ?"
-            params.append(metric_type)
-        
-        query += " ORDER BY year DESC, period DESC"
-        cursor.execute(query, params)
-        return [dict(row) for row in cursor.fetchall()]
-
-
-def insert_fred_data(series_id: str, state: str, date: str, 
-                     value: float, metric_type: str):
-    """Insert or update FRED data point."""
+def insert_population(state: str, year: int, value: float, source: str = "CENSUS"):
+    """Insert population data for a state."""
     with get_db() as conn:
         cursor = conn.cursor()
         cursor.execute('''
-            INSERT OR REPLACE INTO fred_data 
-            (series_id, state, date, value, metric_type)
+            INSERT OR REPLACE INTO population_data (state, year, value, source)
+            VALUES (?, ?, ?, ?)
+        ''', (state, year, value, source))
+
+
+def insert_unemployment(state: str, year: int, value: float, period: str = "annual", source: str = "BLS"):
+    """Insert unemployment data for a state."""
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT OR REPLACE INTO unemployment_data (state, year, period, value, source)
             VALUES (?, ?, ?, ?, ?)
-        ''', (series_id, state, date, value, metric_type))
+        ''', (state, year, period, value, source))
 
 
-def get_fred_data(state: Optional[str] = None, metric_type: Optional[str] = None):
-    """Retrieve FRED data with optional filters."""
+def insert_income(state: str, year: int, value: float, source: str = "CENSUS"):
+    """Insert income data for a state."""
     with get_db() as conn:
         cursor = conn.cursor()
-        query = "SELECT * FROM fred_data WHERE 1=1"
+        cursor.execute('''
+            INSERT OR REPLACE INTO income_data (state, year, value, source)
+            VALUES (?, ?, ?, ?)
+        ''', (state, year, value, source))
+
+
+def insert_cost_of_living(state: str, year: int, value: float, source: str = "BEA"):
+    """Insert cost of living data for a state."""
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT OR REPLACE INTO cost_of_living_data (state, year, value, source)
+            VALUES (?, ?, ?, ?)
+        ''', (state, year, value, source))
+
+
+def insert_growth(state: str, year: int, value: float, source: str = "BEA"):
+    """Insert economic growth data for a state."""
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT OR REPLACE INTO growth_data (state, year, value, source)
+            VALUES (?, ?, ?, ?)
+        ''', (state, year, value, source))
+
+
+# ============================================
+# GET FUNCTIONS - Use these to retrieve data
+# ============================================
+
+def get_gdp(state: Optional[str] = None, year: Optional[int] = None):
+    """Get GDP data with optional filters."""
+    with get_db() as conn:
+        cursor = conn.cursor()
+        query = "SELECT * FROM gdp_data WHERE 1=1"
         params = []
-        
         if state:
             query += " AND state = ?"
             params.append(state)
-
-
-      
-        if metric_type:
-            query += " AND metric_type = ?"
-            params.append(metric_type)
-        
-        query += " ORDER BY date DESC"
+        if year:
+            query += " AND year = ?"
+            params.append(year)
+        query += " ORDER BY year DESC"
         cursor.execute(query, params)
         return [dict(row) for row in cursor.fetchall()]
 
 
+def get_population(state: Optional[str] = None, year: Optional[int] = None):
+    """Get population data with optional filters."""
+    with get_db() as conn:
+        cursor = conn.cursor()
+        query = "SELECT * FROM population_data WHERE 1=1"
+        params = []
+        if state:
+            query += " AND state = ?"
+            params.append(state)
+        if year:
+            query += " AND year = ?"
+            params.append(year)
+        query += " ORDER BY year DESC"
+        cursor.execute(query, params)
+        return [dict(row) for row in cursor.fetchall()]
+
+
+def get_unemployment(state: Optional[str] = None, year: Optional[int] = None):
+    """Get unemployment data with optional filters."""
+    with get_db() as conn:
+        cursor = conn.cursor()
+        query = "SELECT * FROM unemployment_data WHERE 1=1"
+        params = []
+        if state:
+            query += " AND state = ?"
+            params.append(state)
+        if year:
+            query += " AND year = ?"
+            params.append(year)
+        query += " ORDER BY year DESC"
+        cursor.execute(query, params)
+        return [dict(row) for row in cursor.fetchall()]
+
+
+def get_income(state: Optional[str] = None, year: Optional[int] = None):
+    """Get income data with optional filters."""
+    with get_db() as conn:
+        cursor = conn.cursor()
+        query = "SELECT * FROM income_data WHERE 1=1"
+        params = []
+        if state:
+            query += " AND state = ?"
+            params.append(state)
+        if year:
+            query += " AND year = ?"
+            params.append(year)
+        query += " ORDER BY year DESC"
+        cursor.execute(query, params)
+        return [dict(row) for row in cursor.fetchall()]
+
+
+def get_cost_of_living(state: Optional[str] = None, year: Optional[int] = None):
+    """Get cost of living data with optional filters."""
+    with get_db() as conn:
+        cursor = conn.cursor()
+        query = "SELECT * FROM cost_of_living_data WHERE 1=1"
+        params = []
+        if state:
+            query += " AND state = ?"
+            params.append(state)
+        if year:
+            query += " AND year = ?"
+            params.append(year)
+        query += " ORDER BY year DESC"
+        cursor.execute(query, params)
+        return [dict(row) for row in cursor.fetchall()]
+
+
+def get_growth(state: Optional[str] = None, year: Optional[int] = None):
+    """Get economic growth data with optional filters."""
+    with get_db() as conn:
+        cursor = conn.cursor()
+        query = "SELECT * FROM growth_data WHERE 1=1"
+        params = []
+        if state:
+            query += " AND state = ?"
+            params.append(state)
+        if year:
+            query += " AND year = ?"
+            params.append(year)
+        query += " ORDER BY year DESC"
+        cursor.execute(query, params)
+        return [dict(row) for row in cursor.fetchall()]
+
+
+# ============================================
+# BULK INSERT - For loading lots of data at once
+# ============================================
+
+def bulk_insert_gdp(data_list):
+    """Insert multiple GDP records. data_list = [(state, year, value), ...]"""
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.executemany('''
+            INSERT OR REPLACE INTO gdp_data (state, year, value)
+            VALUES (?, ?, ?)
+        ''', data_list)
+        print(f"Inserted {len(data_list)} GDP records")
+
+
+def bulk_insert_population(data_list):
+    """Insert multiple population records. data_list = [(state, year, value), ...]"""
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.executemany('''
+            INSERT OR REPLACE INTO population_data (state, year, value)
+            VALUES (?, ?, ?)
+        ''', data_list)
+        print(f"Inserted {len(data_list)} population records")
+
+
+def bulk_insert_unemployment(data_list):
+    """Insert multiple unemployment records. data_list = [(state, year, period, value), ...]"""
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.executemany('''
+            INSERT OR REPLACE INTO unemployment_data (state, year, period, value)
+            VALUES (?, ?, ?, ?)
+        ''', data_list)
+        print(f"Inserted {len(data_list)} unemployment records")
+
+
+def bulk_insert_income(data_list):
+    """Insert multiple income records. data_list = [(state, year, value), ...]"""
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.executemany('''
+            INSERT OR REPLACE INTO income_data (state, year, value)
+            VALUES (?, ?, ?)
+        ''', data_list)
+        print(f"Inserted {len(data_list)} income records")
+
+
+def bulk_insert_cost_of_living(data_list):
+    """Insert multiple cost of living records. data_list = [(state, year, value), ...]"""
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.executemany('''
+            INSERT OR REPLACE INTO cost_of_living_data (state, year, value)
+            VALUES (?, ?, ?)
+        ''', data_list)
+        print(f"Inserted {len(data_list)} cost of living records")
+
+
+def bulk_insert_growth(data_list):
+    #Insert multiple growth records. data_list = [(state, year, value), ...]
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.executemany('''
+            INSERT OR REPLACE INTO growth_data (state, year, value)
+            VALUES (?, ?, ?)
+        ''', data_list)
+        print(f"Inserted {len(data_list)} growth records")
+
+
+# ============================================
+# HELPER FUNCTIONS
+# ============================================
+
 def populate_states():
-    """Populate the states table with US states data."""
+    #Populate the states table with US states data
     states_data = [
         ("Alabama", "AL", "01"), ("Alaska", "AK", "02"), ("Arizona", "AZ", "04"),
         ("Arkansas", "AR", "05"), ("California", "CA", "06"), ("Colorado", "CO", "08"),
@@ -192,6 +424,68 @@ def populate_states():
             VALUES (?, ?, ?)
         ''', states_data)
         print(f"Populated {len(states_data)} states")
+
+
+
+def getData(mapmode):
+    #we can assume that the user is pulling specific data about the FRED or BLS in a given map mode.
+    #we want to return all of the data associated with the 'gdp' mapmode,
+    
+    
+
+    sqlcmd = f"""
+        SELECT state_code, year, value
+        FROM {mapmode}
+        ORDER BY state_code, year
+    """
+
+    cur = get_db.cursor()
+    try:
+        cur.execute(sqlcmd)
+        rows = cur.fetchall()
+    finally:
+        cur.close()
+    
+    if not rows:
+        print(f"[ERROR] There was an error fetching the data for '{mapmode}'")
+
+    # so now we have the data, looks like so
+    #{
+    #  "CA": { "1980": 12345.6, "1981": 13000.2 },
+    #  "TX": { "1980": 9000.1 }
+    #}
+
+    #so lets reformat it
+    data = {}
+    for row in rows:
+        state_code = row[0]
+        year = row[1]
+        value = row[2]
+
+        #json keys must be strings so convert, might change format later
+        year = str(year)
+
+        #if the state hasnt been added, then add it
+        if state_code not in data:
+            data[state_code] = {}
+
+        #otherwise we store it
+        data[year][state_code] = value
+
+    packet = {
+        "ok": True,
+        "mapmode": mapmode,
+        "data": data
+    }
+
+    #okay so now we have our data we want to send to the front end
+    return packet
+
+
+
+
+
+
 
 
 # Run initialization when this module is executed directly
