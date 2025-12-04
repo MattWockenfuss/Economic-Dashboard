@@ -7,6 +7,8 @@ const forward = document.getElementById("forward");
 var isPlaying = false;
 var intervalID = 0;
 
+var currentDataset = "gdp";
+
 var gdp = null;
 
 
@@ -17,10 +19,19 @@ async function getMapData() {
   const response = await fetch("/mapmode/gdp");
   console.log(response);
   const data = await response.json();
-  console.log(data);
+  console.log(typeof data);
+  const jsondata = JSON.parse(data);
+
+
+
+
+
+  console.log(` AHSDJASDASD ${JSON.stringify(jsondata["gdp"]["2023"])}`);
+
+
+  gdp = jsondata.gdp;
 }
 getMapData();
-
 
 // initialize
 label.innerText = slider.value;
@@ -29,6 +40,7 @@ label.innerText = slider.value;
 slider.addEventListener("input", () => {
   label.innerText = slider.value;
   bigyearlabel.innerText = slider.value;
+  updateData();
 });
 
 //Asynchronous timer that triggers the year animation
@@ -274,10 +286,6 @@ function GenDensity() {
   return true;
 }
 
-function accept(data){
-  data.data[2001]
-}
-
 
 
 
@@ -287,16 +295,88 @@ function accept(data){
 GenChoropleth();
 
 function setDataset(name) {
-  const values = datasets[name];
+  //when we set the data set, we set the current max and min values, as well as the 
+  // currentdataset variable
+  if(name == "gdp") currentDataset = gdp;
+
+  var lowestYear;
+  var highestYear;
+
+  let rawKeys = Object.keys(currentDataset);
+  let years = [];
+  console.log(rawKeys);
+  for (let i = 0; i < rawKeys.length; i++) {
+
+      let key = rawKeys[i];
+      let num = Number(key);
+      if (isNaN(num) === false) {
+          years.push(num);
+      }
+  }
+
+  //Check if any valid years were found
+  if (years.length === 0) {
+      console.warn("No valid year values found");
+  } else {
+      let minYear = years[0];
+      let maxYear = years[0];
+
+      for (let i = 1; i < years.length; i++) {
+          if (years[i] < minYear) {
+              minYear = years[i];
+          }
+
+          if (years[i] > maxYear) {
+              maxYear = years[i];
+          }
+      }
+      slider.min = minYear;
+      slider.max = maxYear;
+      slider.value = minYear;
+      console.log("Minimum year:", minYear);
+      console.log("Maximum year:", maxYear);
+  }
+
+  updateData();
 
 
-  const colorscale = colorThemes[name];
-  const min = Math.min(...values);
-  const max = Math.max(...values);
+  
+}
 
-  // 1) Apply new data instantly, but invisible (opacity 0)
+function updateData(){
+  const states = [
+    "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
+    "HI","ID","IL","IN","IA","KS","KY","LA","ME","MD",
+    "MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ",
+    "NM","NY","NC","ND","OH","OK","OR","PA","RI","SC",
+    "SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"
+  ];
+
+  //this function updates the map based on the current year
+  var year = slider.value;
+  console.log(`The current year is ${year}`);
+  console.log(`${JSON.stringify(currentDataset[year])}`);
+  let zValues = [];
+
+  for (let i = 0; i < states.length; i++) {
+    let stateCode = states[i];
+    let value = currentDataset[year][stateCode];
+
+    // If there is no value for this state, push null (or 0)
+    if (value === undefined) {
+      zValues.push(null);
+    } else {
+      zValues.push(value);
+    }
+  }
+  var min = Math.min(...zValues);
+  var max = Math.max(...zValues);
+  var colorscale = colorThemes.gdp;
+  console.log("zValues for Plotly:", zValues);
+
+  //set the new values
   Plotly.restyle("mapplot", {
-    z: [values],
+    z: [zValues],
     zmin: [min],
     zmax: [max],
     colorscale: [colorscale],
@@ -312,6 +392,10 @@ function setDataset(name) {
   });
 
   genLeaderboard(name);
+
+
+
 }
+
 
 window.setDataset = setDataset;

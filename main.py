@@ -73,11 +73,11 @@ async def mapdata(mapmode):
 
     gdp = {}
 
-    for state in states:
-        gdp[state] = {}
-        for year in years:
+    for year in years:
+        gdp[str(year)] = {}
+        for state in states:
             # random GDP value (replace with real data if needed)
-            gdp[state][str(year)] = random.randint(100, 1000)
+            gdp[str(year)][state] = random.randint(100, 1000)
 
     output = {
         "gdp": gdp
