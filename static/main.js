@@ -55,8 +55,8 @@ play.addEventListener("click", () => {
       }
       else {
         slider.value = year.toString();
-        label.innerText = slider.value;
-        bigyearlabel.innerText = slider.value;
+        const event = new Event("input");
+        slider.dispatchEvent(event);
       }
     }, 500);
   }
@@ -64,6 +64,8 @@ play.addEventListener("click", () => {
     clearInterval(intervalID); //If the user presses the play button, and the interval is already created, stop it.
     isPlaying = false;
   }
+  const event = new Event("input");
+  slider.dispatchEvent(event);
 });
 
 //Event definition for decrementing by one year
@@ -75,6 +77,8 @@ rewind.addEventListener("click", () => {
     label.innerText = slider.value;
     bigyearlabel.innerText = slider.value;
   }
+  const event = new Event("input");
+  slider.dispatchEvent(event);
 });
 
 //Event definition for incrementing by one year
@@ -86,6 +90,8 @@ forward.addEventListener("click", () => {
     label.innerText = slider.value;
     bigyearlabel.innerText = slider.value;
   }
+  const event = new Event("input");
+  slider.dispatchEvent(event);
 });
 
 const colorThemes = {
@@ -170,34 +176,24 @@ const datasets = {
   ]
 }
 
-function genLeaderboard(name) {
+function genLeaderboard(states, zValues) {
   const container = document.getElementById("leaderboard");
 
   container.innerHTML = ''; //Clears all child elements
 
-  const locations = [
-      "CA","NY","TX","FL","IL","PA","OH","GA","NC","NJ",
-      "WA","MA","VA","MI","AZ","TN","IN","CO","MN","WI",
-      "MD","MO","SC","AL","LA","KY","OR","CT","IA","OK",
-      "UT","NV","AR","MS","KS","NM","NE","WV","ID","HI",
-      "NH","ME","MT","RI","DE","SD","ND","VT","WY","AK","DC"
-    ];
+  const header = document.createElement("h3"); //This block adds the heading to the leaderboard along with a br
+  header.textContent = "Leaderboard";
+  header.className = "nopadding";
+  container.appendChild(header);
+  container.appendChild(document.createElement("br"));
 
-    const values = datasets[name];
-
-    const header = document.createElement("h3"); //This block adds the heading to the leaderboard along with a br
-    header.textContent = "Leaderboard";
-    header.className = "nopadding";
-    container.appendChild(header);
-    container.appendChild(document.createElement("br"));
-
-  for (var i = 0; i < locations.length; i++) { //The overlay uses a two column setup, so the state gets the left side, and the value gets the right
+  for (var i = 0; i < states.length; i++) { //The overlay uses a two column setup, so the state gets the left side, and the value gets the right
     const spanleft = document.createElement("span");
-    spanleft.textContent = locations[i];
+    spanleft.textContent = states[i];
     spanleft.style.alignContent = "left";
 
     const spanright = document.createElement("span");
-    spanright.textContent = values[i];
+    spanright.textContent = zValues[i];
     spanright.style.alignContent = "right";
 
     container.appendChild(spanleft);
@@ -249,8 +245,6 @@ function GenChoropleth() {
     Plotly.relayout(container, { width: r.width, height: r.height });
   });
 
-  genLeaderboard("gdp");
-
   return true;
 }
 
@@ -299,9 +293,6 @@ function setDataset(name) {
   // currentdataset variable
   if(name == "gdp") currentDataset = gdp;
 
-  var lowestYear;
-  var highestYear;
-
   let rawKeys = Object.keys(currentDataset);
   let years = [];
   console.log(rawKeys);
@@ -335,6 +326,9 @@ function setDataset(name) {
       slider.value = minYear;
       console.log("Minimum year:", minYear);
       console.log("Maximum year:", maxYear);
+
+      const event = new Event("input");
+      slider.dispatchEvent(event);
   }
 
   updateData();
@@ -391,11 +385,7 @@ function updateData(){
     });
   });
 
-  genLeaderboard(name);
-
-
-
+  genLeaderboard(states, zValues);
 }
-
 
 window.setDataset = setDataset;
