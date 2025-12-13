@@ -203,16 +203,6 @@ function genLeaderboard(states, zValues) {
 
   container.innerHTML = ''; //Clears all child elements
 
-  const locations = [
-      "CA","NY","TX","FL","IL","PA","OH","GA","NC","NJ",
-      "WA","MA","VA","MI","AZ","TN","IN","CO","MN","WI",
-      "MD","MO","SC","AL","LA","KY","OR","CT","IA","OK",
-      "UT","NV","AR","MS","KS","NM","NE","WV","ID","HI",
-      "NH","ME","MT","RI","DE","SD","ND","VT","WY","AK","DC"
-    ];
-
-    const values = datasets[name];
-
   const header = document.createElement("h3"); //This block adds the heading to the leaderboard along with a br
   header.textContent = "Leaderboard";
   header.className = "nopadding";
@@ -225,7 +215,7 @@ function genLeaderboard(states, zValues) {
     spanleft.style.alignContent = "left";
 
     const spanright = document.createElement("span");
-    spanright.textContent = values[i];
+    spanright.textContent = zValues[i];
     spanright.style.alignContent = "right";
 
     container.appendChild(spanleft);
