@@ -77,8 +77,8 @@ play.addEventListener("click", () => {
       }
       else {
         slider.value = year.toString();
-        label.innerText = slider.value;
-        bigyearlabel.innerText = slider.value;
+        const event = new Event("input");
+        slider.dispatchEvent(event);
       }
     }, 500);
   }
@@ -86,6 +86,8 @@ play.addEventListener("click", () => {
     clearInterval(intervalID); //If the user presses the play button, and the interval is already created, stop it.
     isPlaying = false;
   }
+  const event = new Event("input");
+  slider.dispatchEvent(event);
 });
 
 //Event definition for decrementing by one year
@@ -97,6 +99,8 @@ rewind.addEventListener("click", () => {
     label.innerText = slider.value;
     bigyearlabel.innerText = slider.value;
   }
+  const event = new Event("input");
+  slider.dispatchEvent(event);
 });
 
 //Event definition for incrementing by one year
@@ -108,6 +112,8 @@ forward.addEventListener("click", () => {
     label.innerText = slider.value;
     bigyearlabel.innerText = slider.value;
   }
+  const event = new Event("input");
+  slider.dispatchEvent(event);
 });
 
 const colorThemes = {
@@ -192,7 +198,7 @@ const datasets = {
   ]
 }
 
-function genLeaderboard(name) {
+function genLeaderboard(states, zValues) {
   const container = document.getElementById("leaderboard");
 
   container.innerHTML = ''; //Clears all child elements
@@ -205,23 +211,21 @@ function genLeaderboard(name) {
       "NH","ME","MT","RI","DE","SD","ND","VT","WY","AK","DC"
     ];
 
-    const values = currentDataset;
-    console.log(`currentDataset ${currentDataset} and is type ${typeof(currentDataset)}`);
+    const values = datasets[name];
 
+  const header = document.createElement("h3"); //This block adds the heading to the leaderboard along with a br
+  header.textContent = "Leaderboard";
+  header.className = "nopadding";
+  container.appendChild(header);
+  container.appendChild(document.createElement("br"));
 
-    const header = document.createElement("h3"); //This block adds the heading to the leaderboard along with a br
-    header.textContent = "Leaderboard";
-    header.className = "nopadding";
-    container.appendChild(header);
-    container.appendChild(document.createElement("br"));
-
-  for (var i = 0; i < locations.length; i++) { //The overlay uses a two column setup, so the state gets the left side, and the value gets the right
+  for (var i = 0; i < states.length; i++) { //The overlay uses a two column setup, so the state gets the left side, and the value gets the right
     const spanleft = document.createElement("span");
-    spanleft.textContent = locations[i];
+    spanleft.textContent = states[i];
     spanleft.style.alignContent = "left";
 
     const spanright = document.createElement("span");
-    spanright.textContent = values[currentDatasetString];
+    spanright.textContent = values[i];
     spanright.style.alignContent = "right";
 
     container.appendChild(spanleft);
@@ -273,8 +277,6 @@ function GenChoropleth() {
     Plotly.relayout(container, { width: r.width, height: r.height });
   });
 
-  genLeaderboard("gdp");
-
   return true;
 }
 
@@ -323,11 +325,6 @@ function setDataset(name) {
   // currentdataset variable
   currentDatasetString = name;
   if(name == "gdp") currentDataset = gdp;
-  if(name == "population") currentDataset = population;
-  if(name == "unemployment") currentDataset = unemployment;
-  if(name == "income") currentDataset = income;
-  if(name == "col") currentDataset = col;
-  if(name == "economicgrowth") currentDataset = economicgrowth;
 
   var lowestYear;
   var highestYear;
@@ -365,6 +362,9 @@ function setDataset(name) {
       slider.value = minYear;
       console.log("Minimum year:", minYear);
       console.log("Maximum year:", maxYear);
+
+      const event = new Event("input");
+      slider.dispatchEvent(event);
   }
 
   updateData();
@@ -421,11 +421,7 @@ function updateData(){
     });
   });
 
-  genLeaderboard(name);
-
-
-
+  genLeaderboard(states, zValues);
 }
-
 
 window.setDataset = setDataset;
