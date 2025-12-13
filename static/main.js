@@ -7,29 +7,51 @@ const forward = document.getElementById("forward");
 var isPlaying = false;
 var intervalID = 0;
 
+var currentDatasetString = "gdp";
 var currentDataset = "gdp";
 
 var gdp = null;
+var population = null;
+var unemployment = null;
+var income = null;
+var col = null;
+var economicgrowth = null;
 
 
 
 
 //on startup lets make a request
 async function getMapData() {
-  const response = await fetch("/mapmode/gdp");
-  console.log(response);
-  const data = await response.json();
-  console.log(typeof data);
-  const jsondata = JSON.parse(data);
-
-
-
-
-
-  console.log(` AHSDJASDASD ${JSON.stringify(jsondata["gdp"]["2023"])}`);
-
-
+  let response = await fetch("/mapmode/gdp");
+  //console.log(response);
+  let data = await response.json();
+  //console.log(typeof data);
+  let jsondata = JSON.parse(data);
+  console.log(`-> ${JSON.stringify(jsondata["gdp"]["2023"])}`);
   gdp = jsondata.gdp;
+
+  response = await fetch("/mapmode/population");
+  data = await response.json();
+  population = JSON.parse(data).population;
+
+  response = await fetch("/mapmode/unemployment");
+  data = await response.json();
+  unemployment = JSON.parse(data).unemployment;
+
+  response = await fetch("/mapmode/income");
+  data = await response.json();
+  income = JSON.parse(data).income;
+
+  response = await fetch("/mapmode/col");
+  data = await response.json();
+  col = JSON.parse(data).col;
+
+  response = await fetch("/mapmode/economicgrowth");
+  data = await response.json();
+  economicgrowth = JSON.parse(data).economicgrowth;
+
+
+
 }
 getMapData();
 
@@ -183,7 +205,9 @@ function genLeaderboard(name) {
       "NH","ME","MT","RI","DE","SD","ND","VT","WY","AK","DC"
     ];
 
-    const values = datasets[name];
+    const values = currentDataset;
+    console.log(`currentDataset ${currentDataset} and is type ${typeof(currentDataset)}`);
+
 
     const header = document.createElement("h3"); //This block adds the heading to the leaderboard along with a br
     header.textContent = "Leaderboard";
@@ -197,7 +221,7 @@ function genLeaderboard(name) {
     spanleft.style.alignContent = "left";
 
     const spanright = document.createElement("span");
-    spanright.textContent = values[i];
+    spanright.textContent = values[currentDatasetString];
     spanright.style.alignContent = "right";
 
     container.appendChild(spanleft);
@@ -297,7 +321,13 @@ GenChoropleth();
 function setDataset(name) {
   //when we set the data set, we set the current max and min values, as well as the 
   // currentdataset variable
+  currentDatasetString = name;
   if(name == "gdp") currentDataset = gdp;
+  if(name == "population") currentDataset = population;
+  if(name == "unemployment") currentDataset = unemployment;
+  if(name == "income") currentDataset = income;
+  if(name == "col") currentDataset = col;
+  if(name == "economicgrowth") currentDataset = economicgrowth;
 
   var lowestYear;
   var highestYear;

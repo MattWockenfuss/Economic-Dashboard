@@ -80,7 +80,7 @@ async def mapdata(mapmode):
             gdp[str(year)][state] = random.randint(100, 1000)
 
     output = {
-        "gdp": gdp
+        mapmode: gdp
     }
 
     
